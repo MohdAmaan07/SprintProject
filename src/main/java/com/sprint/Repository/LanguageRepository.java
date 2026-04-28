@@ -10,8 +10,6 @@ import java.util.List;
 @RepositoryRestResource(collectionResourceRel = "languages", path = "languages", excerptProjection = LanguageProjection.class)
 public interface LanguageRepository extends JpaRepository<Language, Long> {
     
-    List<Language> findByNameContainingIgnoreCase(String name);
-    
     @RestResource(exported = false)
     void deleteById(Long id);
     
