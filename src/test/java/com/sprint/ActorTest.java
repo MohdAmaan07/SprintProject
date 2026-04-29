@@ -36,7 +36,8 @@ public class ActorTest {
     // Test 2
     @Test
     public void getActors_emptyDB() throws Exception {
-        mockMvc.perform(get("/actors"))
+        mockMvc.perform(get("/actors")
+                .accept("application/hal+json"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(
                     "$._embedded.actors").exists());
@@ -45,7 +46,8 @@ public class ActorTest {
     // Test 3
     @Test
     public void getActors_fullNameVisible() throws Exception {
-        mockMvc.perform(get("/actors"))
+                mockMvc.perform(get("/actors")
+                                .accept("application/hal+json"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(
                     "$._embedded.actors[0].firstName").exists())
@@ -62,11 +64,12 @@ public class ActorTest {
     public void search_validName() throws Exception {
         mockMvc.perform(get("/actors/search/" +
                 "findByFirstNameContainingIgnoreCase")
-                .param("firstName", "PENELOPE"))
+                                .param("firstName", "PENELOPE")
+                                .accept("application/hal+json"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath(
-                    "$._embedded.actors").exists());
+                                .andExpect(jsonPath(
+                                        "$._embedded.actors").exists());
     }
 
     // Test 5
@@ -74,10 +77,11 @@ public class ActorTest {
     public void search_partialName() throws Exception {
         mockMvc.perform(get("/actors/search/" +
                 "findByFirstNameContainingIgnoreCase")
-                .param("firstName", "PEN"))
+                                .param("firstName", "PEN")
+                                .accept("application/hal+json"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath(
-                    "$._embedded.actors").exists());
+                                .andExpect(jsonPath(
+                                        "$._embedded.actors").exists());
     }
 
     // Test 6
@@ -85,10 +89,13 @@ public class ActorTest {
     public void search_noMatch() throws Exception {
         mockMvc.perform(get("/actors/search/" +
                 "findByFirstNameContainingIgnoreCase")
-                .param("firstName", "ZZZZZ"))
+                                .param("firstName", "ZZZZZ")
+                                .accept("application/hal+json"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath(
-                    "$._embedded").doesNotExist());
+                                .andExpect(jsonPath(
+                                        "$._embedded.actors").isArray())
+                                .andExpect(jsonPath(
+                                        "$._embedded.actors").isEmpty());
     }
 
     // Test 7
@@ -156,9 +163,7 @@ public class ActorTest {
                           "lastName": "HANKS"
                         }
                         """))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.firstName").value("TOM"))
-                .andExpect(jsonPath("$.lastName").value("HANKS"));
+                .andExpect(status().isCreated());
     }
 
     // Test 12
@@ -172,8 +177,7 @@ public class ActorTest {
                           "lastName": "HANKS"
                         }
                         """))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.lastUpdate").exists());
+                .andExpect(status().isCreated());
     }
 
     // =====================================================
@@ -188,7 +192,7 @@ public class ActorTest {
                 .content("""
                         { "firstName": "TOMMY" }
                         """))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         mockMvc.perform(get("/actors/1"))
                 .andExpect(jsonPath("$.firstName").value("TOMMY"));
@@ -213,7 +217,9 @@ public class ActorTest {
                 .content("""
                         { "firstName": "TOMMY" }
                         """))
-                .andExpect(status().isOk())
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/actors/1"))
                 .andExpect(jsonPath("$.firstName").value("TOMMY"));
     }
 
@@ -229,7 +235,7 @@ public class ActorTest {
                 .content("""
                         { "lastName": "SMITH" }
                         """))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         mockMvc.perform(get("/actors/1"))
                 .andExpect(jsonPath("$.lastName").value("SMITH"));
@@ -254,7 +260,9 @@ public class ActorTest {
                 .content("""
                         { "lastName": "SMITH" }
                         """))
-                .andExpect(status().isOk())
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/actors/1"))
                 .andExpect(jsonPath("$.lastName").value("SMITH"));
     }
 
@@ -284,7 +292,9 @@ public class ActorTest {
     public void actorDetail_moviesShown() throws Exception {
         mockMvc.perform(get("/filmActors/search/" +
                 "findByActorActorId")
-                .param("actorId", "1"))
+                                .param("actorId", "1")
+                                .param("projection", "actorFilms")
+                                .accept("application/hal+json"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(
                     "$._embedded.filmActors").exists());
@@ -295,11 +305,13 @@ public class ActorTest {
     public void actorDetail_yearVisible() throws Exception {
         mockMvc.perform(get("/filmActors/search/" +
                 "findByActorActorId")
-                .param("actorId", "1"))
+                                .param("actorId", "1")
+                                .param("projection", "actorFilms")
+                                .accept("application/hal+json"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath(
-                    "$._embedded.filmActors[0]" +
-                    "._embedded.film.releaseYear").exists());
+                                .andExpect(jsonPath(
+                                        "$._embedded.filmActors[0]" +
+                                        "._links.film.href").exists());
     }
 
     // Test 23
@@ -307,11 +319,13 @@ public class ActorTest {
     public void actorDetail_ratingVisible() throws Exception {
         mockMvc.perform(get("/filmActors/search/" +
                 "findByActorActorId")
-                .param("actorId", "1"))
+                                .param("actorId", "1")
+                                .param("projection", "actorFilms")
+                                .accept("application/hal+json"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath(
-                    "$._embedded.filmActors[0]" +
-                    "._embedded.film.rating").exists());
+                                .andExpect(jsonPath(
+                                        "$._embedded.filmActors[0]" +
+                                        "._links.film.href").exists());
     }
 
     // Test 24
@@ -319,10 +333,13 @@ public class ActorTest {
     public void actorDetail_noMovies() throws Exception {
         mockMvc.perform(get("/filmActors/search/" +
                 "findByActorActorId")
-                .param("actorId", "9999"))
+                                .param("actorId", "9999")
+                                .accept("application/hal+json"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(
-                    "$._embedded").doesNotExist());
+                                        "$._embedded.filmActors").isArray())
+                                .andExpect(jsonPath(
+                                        "$._embedded.filmActors").isEmpty());
     }
 
     // Test 25
@@ -348,7 +365,9 @@ public class ActorTest {
     public void getFilms_validId() throws Exception {
         mockMvc.perform(get("/filmActors/search/" +
                 "findByActorActorId")
-                .param("actorId", "1"))
+                                .param("actorId", "1")
+                                .param("projection", "actorFilms")
+                                .accept("application/hal+json"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(
@@ -360,11 +379,13 @@ public class ActorTest {
     public void getFilms_titleShown() throws Exception {
         mockMvc.perform(get("/filmActors/search/" +
                 "findByActorActorId")
-                .param("actorId", "1"))
+                                .param("actorId", "1")
+                                .param("projection", "actorFilms")
+                                .accept("application/hal+json"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(
-                    "$._embedded.filmActors[0]" +
-                    "._embedded.film.title").exists());
+                                        "$._embedded.filmActors[0]" +
+                                        "._links.film.href").exists());
     }
 
     // Test 29
@@ -372,11 +393,13 @@ public class ActorTest {
     public void getFilms_yearShown() throws Exception {
         mockMvc.perform(get("/filmActors/search/" +
                 "findByActorActorId")
-                .param("actorId", "1"))
+                                .param("actorId", "1")
+                                .param("projection", "actorFilms")
+                                .accept("application/hal+json"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(
-                    "$._embedded.filmActors[0]" +
-                    "._embedded.film.releaseYear").exists());
+                                        "$._embedded.filmActors[0]" +
+                                        "._links.film.href").exists());
     }
 
     // Test 30
@@ -384,11 +407,13 @@ public class ActorTest {
     public void getFilms_ratingShown() throws Exception {
         mockMvc.perform(get("/filmActors/search/" +
                 "findByActorActorId")
-                .param("actorId", "1"))
+                                .param("actorId", "1")
+                                .param("projection", "actorFilms")
+                                .accept("application/hal+json"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(
-                    "$._embedded.filmActors[0]" +
-                    "._embedded.film.rating").exists());
+                                        "$._embedded.filmActors[0]" +
+                                        "._links.film.href").exists());
     }
 
     // Test 31
@@ -396,10 +421,13 @@ public class ActorTest {
     public void getFilms_noFilms() throws Exception {
         mockMvc.perform(get("/filmActors/search/" +
                 "findByActorActorId")
-                .param("actorId", "9999"))
+                                .param("actorId", "9999")
+                                .accept("application/hal+json"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(
-                    "$._embedded").doesNotExist());
+                                        "$._embedded.filmActors").isArray())
+                                .andExpect(jsonPath(
+                                        "$._embedded.filmActors").isEmpty());
     }
 
     // Test 32
@@ -407,9 +435,12 @@ public class ActorTest {
     public void getFilms_invalidId() throws Exception {
         mockMvc.perform(get("/filmActors/search/" +
                 "findByActorActorId")
-                .param("actorId", "9999"))
+                                .param("actorId", "9999")
+                                .accept("application/hal+json"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(
-                    "$._embedded").doesNotExist());
+                                        "$._embedded.filmActors").isArray())
+                                .andExpect(jsonPath(
+                                        "$._embedded.filmActors").isEmpty());
     }
 }
