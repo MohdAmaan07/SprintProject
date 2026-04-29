@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "actor")
@@ -21,11 +22,14 @@ public class Actor {
     @Column(name = "actor_id")
     private Long actorId;
     
+    @JsonProperty("firstName")
     @Column(name = "first_name", length = 45)
     private String firstName;
     
+    @JsonProperty("lastName")
     @Column(name = "last_name", length = 45)
     private String lastName;
+    
     
     @Column(name = "last_update")
     private Timestamp lastUpdate;
@@ -33,4 +37,10 @@ public class Actor {
     @JsonIgnore
     @OneToMany(mappedBy = "actor")
     private List<FilmActor> filmActors;
+    
+    @PrePersist
+    @PreUpdate
+    public void setLastUpdate() {
+        this.lastUpdate = new Timestamp(System.currentTimeMillis());
+    }
 }
