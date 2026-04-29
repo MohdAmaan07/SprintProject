@@ -20,13 +20,22 @@ public interface StaffProjection {
     interface AddressProjection {
         Long getAddressId();
         CityProjection getCity();
+        
+        String getAddress();   // ADD THIS
 
         interface CityProjection {
             String getCity();
+            
+            interface CountryProjection {
+                String getCountry();   // ADD THIS
+            }
+
+            CountryProjection getCountry();   // ADD THIS
         }
     }
 
     interface StoreProjection {
         Long getStoreId();
     }
+    
 }
