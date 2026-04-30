@@ -1,6 +1,9 @@
 package com.sprint.Entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,10 +23,12 @@ public class Payment {
     @Column(name = "payment_id")
     private Long paymentId;
     
+    @NotNull(message = "Customer is required")
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
     
+    @NotNull(message = "Staff is required")
     @ManyToOne
     @JoinColumn(name = "staff_id", nullable = false)
     private Staff staff;
@@ -32,6 +37,8 @@ public class Payment {
     @JoinColumn(name = "rental_id")
     private Rental rental;
     
+    @DecimalMin(value = "0.00", message = "Amount must be positive")
+    @Digits(integer = 3, fraction = 2, message = "Amount must have at most 2 decimal places")
     @Column(name = "amount", precision = 5, scale = 2)
     private BigDecimal amount;
     

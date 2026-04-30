@@ -1,6 +1,7 @@
 package com.sprint.Entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,10 +22,12 @@ public class Store {
     @Column(name = "store_id")
     private Long storeId;
     
+    @NotNull(message = "Manager staff is required")
     @ManyToOne
     @JoinColumn(name = "manager_staff_id", nullable = false)
     private Staff managerStaff;
     
+    @NotNull(message = "Address is required")
     @ManyToOne
     @JoinColumn(name = "address_id", nullable = false)
     private Address address;
