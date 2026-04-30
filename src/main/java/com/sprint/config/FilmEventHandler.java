@@ -36,33 +36,43 @@ public class FilmEventHandler {
 
     @HandleBeforeSave
     public void validateBeforeSave(Film film) {
-        // For PUT/PATCH, load existing film and validate only the changed fields
         if (film.getFilmId() != null) {
-            Film existingFilm = filmRepository.findById(film.getFilmId()).orElse(null);
-            if (existingFilm != null) {
-                // Merge: keep existing values for null fields (partial update support)
-                if (film.getTitle() == null) {
-                    film.setTitle(existingFilm.getTitle());
-                }
-                if (film.getReleaseYear() == null) {
-                    film.setReleaseYear(existingFilm.getReleaseYear());
-                }
-                if (film.getLanguage() == null) {
-                    film.setLanguage(existingFilm.getLanguage());
-                }
-                if (film.getRentalDuration() == null) {
-                    film.setRentalDuration(existingFilm.getRentalDuration());
-                }
-                if (film.getRentalRate() == null) {
-                    film.setRentalRate(existingFilm.getRentalRate());
-                }
-                if (film.getReplacementCost() == null) {
-                    film.setReplacementCost(existingFilm.getReplacementCost());
-                }
+            Film existing = filmRepository.findById(film.getFilmId()).orElse(null);
+            if (existing != null) {
+                // @NotBlank — must merge
+                if (film.getTitle() == null)
+                    film.setTitle(existing.getTitle());
+
+                // @NotNull — must merge
+                if (film.getLanguage() == null)
+                    film.setLanguage(existing.getLanguage());
+                if (film.getRentalDuration() == null)
+                    film.setRentalDuration(existing.getRentalDuration());
+                if (film.getRentalRate() == null)
+                    film.setRentalRate(existing.getRentalRate());
+                if (film.getReplacementCost() == null)
+                    film.setReplacementCost(existing.getReplacementCost());
+
+                // Optional fields — still merge to preserve existing values
+                if (film.getDescription() == null)
+                    film.setDescription(existing.getDescription());
+                if (film.getRating() == null)
+                    film.setRating(existing.getRating());
+                if (film.getLength() == null)
+                    film.setLength(existing.getLength());
+                if (film.getReleaseYear() == null)
+                    film.setReleaseYear(existing.getReleaseYear());
+                if (film.getOriginalLanguage() == null)
+                    film.setOriginalLanguage(existing.getOriginalLanguage());
+                if (film.getSpecialFeatures() == null)
+                    film.setSpecialFeatures(existing.getSpecialFeatures());
+                if (film.getActors() == null || film.getActors().isEmpty())
+                    film.setActors(existing.getActors());
+                if (film.getCategories() == null || film.getCategories().isEmpty())
+                    film.setCategories(existing.getCategories());
             }
         }
 
-        // Now validate the merged entity
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException(violations);
