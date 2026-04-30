@@ -162,5 +162,35 @@ public class LanguageTest {
                         """))
                 .andExpect(status().is4xxClientError());
     }
+
+    @Test
+    public void test15_getFilmsByLanguage_success() throws Exception {
+        mockMvc.perform(get("/films/search/byLanguage")
+                .param("languageId", "2")
+                .param("page", "0")
+                .param("size", "20"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content[0].content").isArray())
+                .andExpect(jsonPath("$.content[0].links").isArray());
+    }
+
+    @Test
+    public void test16_getFilmsByLanguage_withValidLanguageId() throws Exception {
+        mockMvc.perform(get("/films/search/byLanguage")
+                .param("languageId", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray());
+    }
+
+    @Test
+    public void test17_getFilmsByLanguage_pagination() throws Exception {
+        mockMvc.perform(get("/films/search/byLanguage")
+                .param("languageId", "2")
+                .param("page", "0")
+                .param("size", "5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray());
+    }
     
 }
