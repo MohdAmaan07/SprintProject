@@ -36,7 +36,10 @@ public interface FilmRepository extends JpaRepository<Film, Long> {
         "actors",
     })
     @RestResource(path = "byLanguage")
-    Page<Film> findByLanguage_LanguageId(Long languageId, Pageable pageable);
+    Page<Film> findByLanguage_LanguageId(
+            @Param("languageId") Long languageId,
+            Pageable pageable
+    );
     
     @RestResource(exported = false)
     void deleteById(Long id);

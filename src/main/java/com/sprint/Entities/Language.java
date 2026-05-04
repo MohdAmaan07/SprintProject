@@ -30,7 +30,6 @@ public class Language {
     @JsonProperty("name")
     private String name;
 
-    @NotNull(message = "Last update is required")
     @Column(name = "last_update")
     @JsonProperty("lastUpdate")
     private Timestamp lastUpdate;
@@ -42,4 +41,16 @@ public class Language {
     @JsonIgnore
     @OneToMany(mappedBy = "originalLanguage")
     private List<Film> originalLanguageFilms;
+
+    @PrePersist
+    protected void onCreate() {
+        if (lastUpdate == null) {
+            lastUpdate = new Timestamp(System.currentTimeMillis());
+        }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        lastUpdate = new Timestamp(System.currentTimeMillis());
+    }
 }
